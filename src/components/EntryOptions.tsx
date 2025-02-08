@@ -230,7 +230,7 @@ const EntryBox = ({ selectedMedication, onFilterChange, addStock }: EntryBoxProp
               />
               <button
                 onClick={handleSubmit}
-                className="w-full p-0 mt-1 border rounded-lg hover:bg-[var(--hover)] border-[var(--puborder)]"
+                className="w-full p-0 mt-1 border rounded-lg hover:bg-[var(--hover)] text-[var(--foreground)] border-[var(--puborder)]"
               >
                 Enter
               </button>

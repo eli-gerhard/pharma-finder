@@ -1,40 +1,21 @@
 import type { Metadata } from "next";
-// import { Geist, Geist_Mono } from "next/font/google";
 import { Inter } from 'next/font/google';
 import "./globals.css";
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
-
-// export default function RootLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode;
-// }>) {
-//   return (
-//     <html lang="en">
-//       <body
-//         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-//       >
-//         {children}
-//       </body>
-//     </html>
-//   );
-// }
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Pharmacy Finder',
-  description: 'Find medications in stock at nearby pharmacies',
-};
+  title: 'InStockMed | Find In Stock Medications',
+  description: 'Search for in-stock medications at pharmacies near you. Crowd sourced availability information for medications experiencing shortages.',
+  keywords: 'pharmacy finder, medication availability, prescription drugs, pharmacy search, medication stock, in stock med, in stock medication',
+  openGraph: {
+    title: 'InStockMed',
+    description: 'Find in stock medications at pharmacies near you',
+    url: 'https://www.instockmed.com',
+    siteName: 'InStockMed',
+    type: 'website'
+  }
+}
 
 export default function RootLayout({
   children,
