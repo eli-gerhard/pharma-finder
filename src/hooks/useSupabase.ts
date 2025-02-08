@@ -4,7 +4,9 @@ import { supabase } from '@/utils/supabase'
 import type { Database } from '@/types/supabase'
 
 type Pharmacy = Database['public']['Tables']['pharmacies']['Row']
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Medication = Database['public']['Tables']['medications']['Row']
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Stock = Database['public']['Tables']['stock']['Row']
 
 export const useNearbyPharmacies = (

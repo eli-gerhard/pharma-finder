@@ -51,6 +51,7 @@ interface ZipCodeData {
 const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<Medication[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -248,6 +249,7 @@ const SearchPageClient: React.FC = () => {
           type: 'zipcode'
         });
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // console.error('Error getting location:', error);
       setError({
@@ -285,6 +287,7 @@ const SearchPageClient: React.FC = () => {
           setError(null);
           setIsLocating(false);
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (error) => {
           // console.error('Error getting location:', error);
           setError({

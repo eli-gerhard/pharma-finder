@@ -81,6 +81,7 @@ async function insertStockData(stockData: StockData) {
 const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<Medication[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -277,6 +278,7 @@ const EntryPageClient: React.FC = () => {
           type: 'zipcode'
         });
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError({
         message: 'Error finding location from zip code. Please try again.',
@@ -321,6 +323,7 @@ const EntryPageClient: React.FC = () => {
           setError(null);
           setIsLocating(false);
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (error) => {
           // console.error('Error getting location:', error);
           setError({
