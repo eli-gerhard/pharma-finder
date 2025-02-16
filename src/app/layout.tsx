@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from 'next/font/google';
 import "./globals.css";
+import RootLayoutContent from './layout-content';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,7 +25,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      {/* <body className={`${inter.className} min-h-screen relative`}>
+        <div className="gradient-overlay" />
+        <div className="noise" />
+        <div className="relative z-10">
+          {children}
+        </div>
+      </body> */}
+      <RootLayoutContent inter={inter}>{children}</RootLayoutContent>
     </html>
   );
 }

@@ -2,23 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes floatUp {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --accent: #075985 ;
-  --popup: #ffffff ;
-  --puborder: #075985 ;
-  --hover: #e0f2fe ;
+  --accent: #075985;
+  --accent-light: #42A5F5;
+  --accent-green: #4CAF50;
+  --popup: #f0f9ff;
+  --puborder: #075985;
+  --hover: #e0f2fe;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #152227;
+    --background: #000000;
     --foreground: #ededed;
     --accent: #93dfff;
+    --accent-light: rgba(66, 165, 245, 0.15);
+    --accent-green: rgba(76, 175, 80, 0.15);
     --popup: #082f49;
-    --puborder: #e5e7eb ;
-    --hover: #0c4a6e ;
+    --puborder: #e5e7eb;
+    --hover: #0c4a6e;
   }
 }
 
@@ -26,4 +35,64 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, var(--accent-light) 0%, transparent 20%),
+    radial-gradient(circle at 80% 70%, var(--accent-green) 0%, transparent 10%);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -2;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2342A5F5' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='2' cy='2' r='1'/%3E%3C/g%3E%3C/svg%3E");
+  animation: floatUp 60s linear infinite;
+  pointer-events: none;
+  z-index: -2;
+}
+
+.gradient-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, var(--accent-light) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, var(--accent-green) 0%, transparent 20%);
+  opacity: 0.2;  /* Increased opacity */
+  pointer-events: none;
+  z-index: -1;  /* Changed to negative to ensure it stays behind content */
+}
+
+.noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* New SVG pattern with more random, scattered dots */
+  background-image: url("data:image/svg+xml,%3Csvg width='800' height='800' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Ccircle cx='20' cy='30' r='1' fill='%2342A5F5' fill-opacity='1.0'/%3E%3Ccircle cx='160' cy='40' r='1' fill='%2342A5F5' fill-opacity='1.0'/%3E%3Ccircle cx='100' cy='120' r='1' fill='%234CAF50' fill-opacity='1.0'/%3E%3Ccircle cx='180' cy='160' r='1' fill='%2342A5F5' fill-opacity='1.0'/%3E%3Ccircle cx='60' cy='180' r='1' fill='%234CAF50' fill-opacity='1.0'/%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.8;  /* Increased opacity to make dots more visible */
+  z-index: -1;
+  /* background-attachment: fixed; */
+  transform: translateY(var(--scroll));
+  
 }
