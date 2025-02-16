@@ -53,18 +53,20 @@ export default function Header() {
     <header className="bg-[var(--background)]/80 backdrop-blur-sm shadow-sm border-b border-[var(--popup)]">
       <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
         {/* Logo and Name */}
-        <div className="flex items-center gap-2">
-          <div className="rounded">
-            <Image 
-              src="/logo-icon.png"
-              alt="App Logo"
-              width={48}
-              height={48}
-              className="rounded"
-            />
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="rounded">
+              <Image 
+                src="/logo-icon.png"
+                alt="App Logo"
+                width={48}
+                height={48}
+                className="rounded"
+              />
+            </div>
+            <span className="font-semibold text-xl text-[var(--accent)]">InStockMed</span>
           </div>
-          <span className="font-semibold text-xl text-[var(--accent)]">InStockMed</span>
-        </div>
+        </Link>
 
         {/* Desktop Navigation */}
         {!isMobile && (
