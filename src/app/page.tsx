@@ -27,7 +27,7 @@ export default function Home() {
   return (
     <>
     <Header />
-    <main className="p-4 flex flex-col justify-center mt-16">
+    <main className="p-4 flex flex-col justify-center items-center mt-16">
       <div className={`max-w-7xl ${isMobile ? 'flex-col' : 'flex'} items-center`}>
         <div className={`${isMobile ? 'w-full text-center border-b border-[var(--puborder)] pb-8 pt-8' : 'w-1/2'} px-4`}>
           <div className="text-5xl px-4">
