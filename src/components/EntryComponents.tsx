@@ -9,8 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/Alert';
 import zipCodesData from '@/utils/data/zipCodes.json';
 // import { unique } from 'next/dist/build/utils';
 
-
-
 // Type definitions
 type Medication = Database['public']['Tables']['medications']['Row'];
 // type Stock = Database['public']['Tables']['stock']['Row']; // Don't need since not calling any stock
@@ -76,6 +74,31 @@ async function insertStockData(stockData: StockData) {
     return null;
   }
 }
+
+// LocationSearchButtons component
+const LocationSearchButtons: React.FC<{
+  onLocationRequest: () => void;
+  onZipCodeRequest: () => void;
+}> = ({ onLocationRequest, onZipCodeRequest }) => {
+  return (
+    <div className="w-full max-w-lg flex justify-self-center space-x-2 mb-4">
+      <button
+        onClick={onLocationRequest}
+        className="flex-1 p-1 bg-[var(--popup)] border border-[var(--puborder)] rounded-lg hover:bg-[var(--hover)] flex items-center justify-center transition-colors"
+      >
+        <MapPin size={16} className="mr-2" />
+        Search Near Me
+      </button>
+      <button
+        onClick={onZipCodeRequest}
+        className="flex-1 p-1 bg-[var(--popup)] border border-[var(--puborder)] rounded-lg hover:bg-[var(--hover)] flex items-center justify-center transition-colors"
+      >
+        <Search size={16} className="mr-2" />
+        Search by ZipCode
+      </button>
+    </div>
+  );
+};
 
 // MedicationSearch component
 const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect }) => {
@@ -256,6 +279,49 @@ const EntryPageClient: React.FC = () => {
   const [error, setError] = useState<LocationError | null>(null);
   const [entry, setEntry] = useState<Entry>({dosage: '', form: '', brand: '', generic: true, entryDate: new Date()});
   const [submit, setSubmit] = useState<boolean>(false);
+
+  // Request geolocation from user
+  const requestUserLocation = () => {
+    setIsLocating(true);
+    setError(null);
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setError(null);
+          setIsLocating(false);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setError({
+            message: 'Please enable location or enter your zip code.',
+            type: 'geolocation'
+          });
+          setIsLocating(false);
+        }
+      );
+    } else {
+      setError({
+        message: 'Geolocation is not supported by your browser.',
+        type: 'geolocation'
+      });
+      setIsLocating(false);
+    }
+  };
+
+  // Show zip code input dialog
+  const requestZipCode = () => {
+    setError({
+      message: 'Please enter your zip code below.',
+      type: 'zipcode'
+    });
+    setUserLocation(null); // Clear current location to show the ZIP input form
+    setIsLocating(false);
+  };
 
   const getCoordinatesFromZipCode = async (zipCode: string) => {
     try {
@@ -467,6 +533,10 @@ const EntryPageClient: React.FC = () => {
           
           {(userLocation) && (
             <div className="w-full max-w-2xl">
+              <LocationSearchButtons 
+                onLocationRequest={requestUserLocation}
+                onZipCodeRequest={requestZipCode}
+              />
               <h2 className="mb-2 text-sm">
                 <span className="text-base font-semibold text-[var(--accent)]">
                   Select the pharmacy where you picked up your medication:
@@ -479,15 +549,6 @@ const EntryPageClient: React.FC = () => {
           <MedicationSearch onMedicationSelect={setSelectedMedication} /> 
           {selectedMedication && (
             <EntryBox 
-              // selectedMedication={selectedMedication}
-              // onFilterChange={(newEntry) => {
-              //   setEntry(newEntry);
-              // }}
-              // addStock={(submitStock) => {
-              //   setSubmit(submitStock);
-              //   console.log('MS');
-              //   console.log(submitStock);
-              // }}
               selectedMedication={selectedMedication}
               onFilterChange={handleEntryChange}
               addStock={handleStockSubmit}

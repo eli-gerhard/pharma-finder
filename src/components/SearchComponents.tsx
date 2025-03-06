@@ -47,6 +47,31 @@ interface ZipCodeData {
   borough: string;
 }
 
+// LocationSearchButtons component
+const LocationSearchButtons: React.FC<{
+  onLocationRequest: () => void;
+  onZipCodeRequest: () => void;
+}> = ({ onLocationRequest, onZipCodeRequest }) => {
+  return (
+    <div className="w-full max-w-lg flex space-x-2 mb-4">
+      <button
+        onClick={onLocationRequest}
+        className="flex-1 p-1 bg-[var(--popup)] border border-[var(--puborder)] rounded-lg hover:bg-[var(--hover)] flex items-center justify-center transition-colors"
+      >
+        <MapPin size={16} className="mr-2" />
+        Search Near Me
+      </button>
+      <button
+        onClick={onZipCodeRequest}
+        className="flex-1 p-1 bg-[var(--popup)] border border-[var(--puborder)] rounded-lg hover:bg-[var(--hover)] flex items-center justify-center transition-colors"
+      >
+        <Search size={16} className="mr-2" />
+        Search by ZipCode
+      </button>
+    </div>
+  );
+};
+
 // MedicationSearch component
 const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -228,6 +253,49 @@ const SearchPageClient: React.FC = () => {
   const [isLocating, setIsLocating] = useState(true);
   const [filters, setFilters] = useState<Filters>({dosages: [], forms: [], brands: [], generic: true, distance: 10, units: 'mi', pickup: 30});
 
+  // Request geolocation from user
+  const requestUserLocation = () => {
+    setIsLocating(true);
+    setError(null);
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setError(null);
+          setIsLocating(false);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setError({
+            message: 'Please enable location or enter your zip code.',
+            type: 'geolocation'
+          });
+          setIsLocating(false);
+        }
+      );
+    } else {
+      setError({
+        message: 'Geolocation is not supported by your browser.',
+        type: 'geolocation'
+      });
+      setIsLocating(false);
+    }
+  };
+
+  // Show zip code input dialog
+  const requestZipCode = () => {
+    setError({
+      message: 'Please enter your zip code below.',
+      type: 'zipcode'
+    });
+    setUserLocation(null); // Clear current location to show the ZIP input form
+    setIsLocating(false);
+  };
+
   const getCoordinatesFromZipCode = async (zipCode: string) => {
     try {
       setLoading(true);
@@ -402,6 +470,10 @@ const SearchPageClient: React.FC = () => {
         </h1>
         
         <div className="flex flex-col items-center space-y-6">
+          <LocationSearchButtons 
+            onLocationRequest={requestUserLocation}
+            onZipCodeRequest={requestZipCode}
+          />
           <MedicationSearch onMedicationSelect={setSelectedMedication} />
           
           {selectedMedication && (
