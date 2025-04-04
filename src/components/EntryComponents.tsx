@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, MapPin, X } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 import type { Database } from '@/types/supabase';
@@ -25,6 +25,7 @@ interface PharmacyListProps {
   pharmacies: Pharmacy[];
   loading: boolean;
   onPharmacySelect: (pharmacy: Pharmacy | null) => void;
+  resetSelection?: () => void; // Add this function for external control
 }
 
 interface Entry {
@@ -33,7 +34,7 @@ interface Entry {
   brand: string;
   generic: boolean;
   entryDate: Date;
- }
+}
 
 interface LocationError {
   message: string;
@@ -189,8 +190,25 @@ const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect 
 
 
 // PharmacyList component
-const PharmacyList: React.FC<PharmacyListProps> = ({ pharmacies, loading, onPharmacySelect }) => {
+const PharmacyList: React.FC<PharmacyListProps> = ({ 
+  pharmacies, 
+  loading, 
+  onPharmacySelect, 
+  resetSelection 
+}) => {
   const [selectedPharmacy, setSelectedPharmacy] = useState<Pharmacy | null>(null);
+  
+  // Add an effect to listen for external reset requests
+  useEffect(() => {
+    if (resetSelection) {
+      const originalResetFunction = resetSelection;
+      resetSelection = () => {
+        setSelectedPharmacy(null);
+        originalResetFunction();
+      };
+    }
+  }, [resetSelection]);
+  
   const formatDistance = (dist: number): string => {
       if (dist < 1000) {
         return `${Math.round(dist)}m`;
@@ -249,7 +267,10 @@ const PharmacyList: React.FC<PharmacyListProps> = ({ pharmacies, loading, onPhar
               </div>
             </div>
             <button 
-              onClick={() => setSelectedPharmacy(null)} 
+              onClick={() => {
+                setSelectedPharmacy(null);
+                onPharmacySelect(null);
+              }} 
               className="text-gray-500 hover:text-gray-700"
             >
               <X size={20} />
@@ -279,6 +300,16 @@ const EntryPageClient: React.FC = () => {
   const [error, setError] = useState<LocationError | null>(null);
   const [entry, setEntry] = useState<Entry>({dosage: '', form: '', brand: '', generic: true, entryDate: new Date()});
   const [submit, setSubmit] = useState<boolean>(false);
+
+  const resetPharmacySelection = useRef<(() => void) | null>(null);   // Create a ref to the pharmacy list component's internal state
+
+  // Function to reset PharmacyList component
+  const resetPharmacyListSelection = () => {
+    // This function will be set by the PharmacyList component
+    if (resetPharmacySelection.current) {
+      resetPharmacySelection.current();
+    }
+  };
 
   // Request geolocation from user
   const requestUserLocation = () => {
@@ -461,9 +492,8 @@ const EntryPageClient: React.FC = () => {
       setLoading(true);
       if (submit) {
         try {
-
           //Populate stock table
-          insertStockData({
+          const result = await insertStockData({
             dosage: currentEntry.dosage,
             form: currentEntry.form,
             is_generic: currentEntry.generic,
@@ -478,6 +508,14 @@ const EntryPageClient: React.FC = () => {
             return;
           }
 
+          // If we have a result, it means the operation was successful
+          if (result) {
+            // Reset the page
+            setSelectedMedication(null);
+            setSelectedPharmacy(null);
+            resetPharmacyListSelection(); // Reset the PharmacyList's internal state
+            setSubmit(false); // Reset submit state to prevent re-triggering
+          }
         } catch (err) {
           console.error('Exception in populateStock:', err);
         } finally {
@@ -542,7 +580,17 @@ const EntryPageClient: React.FC = () => {
                   Select the pharmacy where you picked up your medication:
                 </span>
               </h2>
-              <PharmacyList pharmacies={pharmacies} loading={loading} onPharmacySelect={setSelectedPharmacy}/>
+              <PharmacyList 
+                pharmacies={pharmacies} 
+                loading={loading} 
+                onPharmacySelect={setSelectedPharmacy}
+                resetSelection={() => {
+                  // Store the reset function for later use
+                  resetPharmacySelection.current = () => {
+                    // This will be called when we want to reset the PharmacyList
+                  }
+                }}
+              />
             </div>
           )}
           

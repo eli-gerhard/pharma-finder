@@ -17,6 +17,7 @@ interface EntryBoxProps {
   selectedMedication: Medication;
   onFilterChange: (entry: Entry) => void;
   addStock: (submit: boolean) => void;
+  resetKey?: number; // Add a new resetKey prop that will trigger state reset
 }
 
 interface DropdownProps {
@@ -41,7 +42,7 @@ interface DatePickerProps {
   onChange: (date: Date) => void;
 }
 
-const EntryBox = ({ selectedMedication, onFilterChange, addStock }: EntryBoxProps) => {
+const EntryBox = ({ selectedMedication, onFilterChange, addStock, resetKey = 0 }: EntryBoxProps) => {
   const [isOpen, setIsOpen] = useState<Record<string, boolean>>({
     dosage: false,
     form: false,
@@ -58,15 +59,25 @@ const EntryBox = ({ selectedMedication, onFilterChange, addStock }: EntryBoxProp
     entryDate: new Date()
   });
 
-  // const handleOptionSelect = (filterType: keyof Pick<Entry, 'dosage' | 'form' | 'brand'>, value: string): void => {
-  //   setEntry((prev: Entry) => {
-  //     const updated = { ...prev, [filterType]: value };
-  //     onFilterChange(updated);
-  //     addStock(false);
-  //     return updated;
-  //   });
-  //   setIsOpen(prev => ({ ...prev, [filterType]: false }));
-  // };
+  // Add an effect to reset the component state when resetKey changes
+  useEffect(() => {
+    if (resetKey > 0) {
+      setEntry({
+        dosage: '',
+        form: '',
+        brand: '',
+        generic: false,
+        entryDate: new Date()
+      });
+      setIsOpen({
+        dosage: false,
+        form: false,
+        generic: false,
+        brand: false,
+        entryDate: false
+      });
+    }
+  }, [resetKey]);
 
   const handleOptionSelect = useCallback((filterType: keyof Pick<Entry, 'dosage' | 'form' | 'brand'>, value: string): void => {
     setEntry(prev => ({ ...prev, [filterType]: value }));
@@ -78,22 +89,6 @@ const EntryBox = ({ selectedMedication, onFilterChange, addStock }: EntryBoxProp
     addStock(false);
   }, [entry, onFilterChange, addStock]);
 
-
-  // const handleBooleanSelect = (value: boolean): void => {
-  //   setEntry((prev: Entry) => {
-  //     // If setting generic to true, clear the brand selection
-  //     const updated = { 
-  //       ...prev, 
-  //       generic: value,
-  //       brand: value ? '' : prev.brand // Clear brand if generic is true
-  //     };
-  //     onFilterChange(updated);
-  //     addStock(false);
-  //     return updated;
-  //   });
-  //   setIsOpen(prev => ({ ...prev, generic: false }));
-  // };
-
   const handleBooleanSelect = useCallback((value: boolean): void => {
     setEntry(prev => ({ 
       ...prev, 
@@ -102,16 +97,6 @@ const EntryBox = ({ selectedMedication, onFilterChange, addStock }: EntryBoxProp
     }));
     setIsOpen(prev => ({ ...prev, generic: false }));
   }, []);
-
-  // const handleDateSelect = (value: Date): void => {
-  //   setEntry((prev: Entry) => {
-  //     const updated = { ...prev, entryDate: value };
-  //     onFilterChange(updated);
-  //     addStock(false);
-  //     return updated;
-  //   });
-  //   // setIsOpen(prev => ({ ...prev, entryDate: false }));
-  // };
 
   const handleDateSelect = useCallback((value: Date): void => {
     setEntry(prev => ({ ...prev, entryDate: value }));
