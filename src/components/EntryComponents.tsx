@@ -302,6 +302,7 @@ const EntryPageClient: React.FC = () => {
   const [submit, setSubmit] = useState<boolean>(false);
 
   const resetPharmacySelection = useRef<(() => void) | null>(null);   // Create a ref to the pharmacy list component's internal state
+  const [showThankYou, setShowThankYou] = useState<boolean>(false);
 
   // Function to reset PharmacyList component
   const resetPharmacyListSelection = () => {
@@ -515,6 +516,7 @@ const EntryPageClient: React.FC = () => {
             setSelectedPharmacy(null);
             resetPharmacyListSelection(); // Reset the PharmacyList's internal state
             setSubmit(false); // Reset submit state to prevent re-triggering
+            setShowThankYou(true);
           }
         } catch (err) {
           console.error('Exception in populateStock:', err);
@@ -530,6 +532,24 @@ const EntryPageClient: React.FC = () => {
   return (
     <div className="min-h-screen py-0">
       <div className="max-w-5xl mx-auto px-4">
+
+        {/* Thank You Popup */}
+        {showThankYou && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-[var(--popup)] border border-[var(--puborder)] rounded-lg p-6 max-w-md w-full shadow-lg relative">
+              <button 
+                onClick={() => setShowThankYou(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-2">Thank You!</h3>
+                <p className="">Your medication pickup has been recorded successfully.</p>
+              </div>
+            </div>
+          </div>
+        )}
         
         {((error || !userLocation) && !isLocating) && (
           <div className="fixed left-1/2 max-w-96 transform -translate-x-1/2 text-center space-y-4 bg-sky-900 p-2 rounded-lg w-4/5 border z-20">
