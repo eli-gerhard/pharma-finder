@@ -12,8 +12,8 @@ interface Med {
 }
 
 interface MedRequestBoxProps {
-  onFilterChange: (entry: Med) => void;
-  addMed: (submit: boolean) => void;
+  onFilterChange: (med: Med) => void;
+  addMed: (request: boolean) => void;
   resetKey?: number; // Add a new resetKey prop that will trigger state reset
 }
 
@@ -27,8 +27,8 @@ interface DropdownProps {
 }
 
 const MedRequestBox = ({ onFilterChange, addMed, resetKey = 0 }: MedRequestBoxProps) => {
-  const [brandEntry, setBrand] = useState('');
-  const [scientificEntry, setScientific] = useState('');
+  // const [brand, setBrand] = useState('');
+  // const [scientific, setScientific] = useState('');
   
   const [isOpen, setIsOpen] = useState<Record<string, boolean>>({
     brand: false,
@@ -36,7 +36,7 @@ const MedRequestBox = ({ onFilterChange, addMed, resetKey = 0 }: MedRequestBoxPr
     form: false
   });
 
-  const [entry, setMed] = useState<Med>({
+  const [med, setMed] = useState<Med>({
     brand: '',
     scientific: '',
     form: ''
@@ -63,10 +63,16 @@ const MedRequestBox = ({ onFilterChange, addMed, resetKey = 0 }: MedRequestBoxPr
     setIsOpen(prev => ({ ...prev, [filterType]: false }));
   }, []);
 
+  const handleOptionInsert = useCallback((filterType: keyof Pick<Med, 'brand' | 'scientific' >, value: string): void => {
+    setMed(prev => ({ ...prev, [filterType]: value }));
+  }, []);
+
+
+
   useEffect(() => {
-    onFilterChange(entry);
+    onFilterChange(med);
     addMed(false);
-  }, [entry, onFilterChange, addMed]);
+  }, [med, onFilterChange, addMed]);
 
   const Dropdown: React.FC<DropdownProps> = ({ title, options, type, value, onChange, disabled }) => (
     <div className="flex items-center w-full mb-2 space-x-4 ">
@@ -123,22 +129,22 @@ const MedRequestBox = ({ onFilterChange, addMed, resetKey = 0 }: MedRequestBoxPr
           type="text"
           title="Brand Name"
           placeholder="Brand name (if available)"
-          value={brandEntry}
-          onChange={(b) => setBrand(b.target.value)}
+          value={med.brand}
+          onChange={(b) => handleOptionInsert('brand', b.target.value)}
         />
         <input
           className="w-full px-4 py-2 mb-2 border rounded-lg bg-gray-50 text-gray-700 cursor-default focus:outline-none border-[var(--puborder)]"
           type="text"
           title="Generic Name"
           placeholder="Generic name or active incredient"
-          value={scientificEntry}
-          onChange={(b) => setScientific(b.target.value)}
+          value={med.scientific}
+          onChange={(s) => handleOptionInsert('scientific', s.target.value)}
         />
         <Dropdown
           title="Form"
           options={['capsule','chewable','inhaler','injection','powder','solution','syrup','tablet','other']}
           type="form"
-          value={entry.form}
+          value={med.form}
           onChange={(value) => handleOptionSelect('form', value)}
           disabled={!true}
         />
