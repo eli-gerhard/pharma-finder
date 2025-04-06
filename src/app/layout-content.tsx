@@ -3,6 +3,7 @@
 
 import { useEffect } from 'react';
 import type { NextFont } from 'next/dist/compiled/@next/font';
+import Footer from '@/components/ui/Footer';
 
 export default function RootLayoutContent({
   children,
@@ -22,10 +23,13 @@ export default function RootLayoutContent({
         return () => window.removeEventListener('scroll', handleScroll);
         }, []);
     return (
-        <body className={`${inter.className} min-h-screen relative`}>
-        <div className="gradient-overlay" />
-        <div className="noise" />
-            {children}
+        <body className={`${inter.className} min-h-screen relative flex flex-col`}>
+            <div className="gradient-overlay" />
+            <div className="noise" />
+            <div className="flex-grow">
+                {children}
+            </div>
+            <Footer />
         </body>
   );
 }
