@@ -26,17 +26,17 @@ export default function Home() {
   return (
     <>
     <Header />
-    <main className="p-4 flex flex-col justify-center items-center mt-16">
+    <main className="p-4 flex flex-col justify-center items-center mt-8">
       <div className={`min-w-96 max-w-7xl ${isMobile ? 'flex-col' : 'flex'} items-center`}>
         <div className={`${isMobile ? 'w-full text-center border-b border-[var(--puborder)] pb-8 pt-8' : 'w-full'} px-4`}>
-          <div className={`text-3xl font-semibold text-[var(--accent)] pb-2 flex items-center ${isMobile ? 'justify-center' : 'flex'}`}>
-            <Building2 size={30} color="var(--accent)" className="mr-2" /> Current Cities
+          <div className={`text-3xl font-semibold text-[var(--accent)] pb-2 gap-2 flex items-center ${isMobile ? 'justify-center' : 'flex'}`}>
+            <Building2 size={30} color="var(--accent)" /> Current Cities
           </div>
           <ul className="space-y-1">
             <li>New York, NY</li>
           </ul>
-          <div className={`text-xl font-semibold text-gray-500 pb-2 pt-8 flex items-center ${isMobile ? 'justify-center' : 'flex'}`}>
-            <Hourglass size={20} color="gray" className="mr-2" /> Coming Soon
+          <div className={`text-xl font-semibold text-gray-500 pb-2 gap-2 pt-8 flex items-center ${isMobile ? 'justify-center' : 'flex'}`}>
+            <Hourglass size={20} color="gray" /> Coming Soon
           </div>
           <ul className="space-y-1 text-gray-500">
             <li>San Diego, CA</li>

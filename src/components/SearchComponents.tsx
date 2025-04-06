@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Clock } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Search, MapPin, Clock, X } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 import type { Database } from '@/types/supabase';
 import { FilterBar } from './FilterComponent';
 import { Alert, AlertDescription } from '@/components/ui/Alert';
 import zipCodesData from '@/utils/data/zipCodes.json';
+import { MedRequestBox } from './RequestForms';
 
 // Type definitions
 type Medication = Database['public']['Tables']['medications']['Row'];
@@ -47,6 +48,28 @@ interface ZipCodeData {
   borough: string;
 }
 
+interface MedRequest {
+  brand: string | null;
+  scientific: string | null;
+  form: string;
+}
+
+async function insertMedRequest(MedRequest: MedRequest) {
+  console.log(MedRequest);
+  try {
+    const { data, error } = await supabase
+      .from('medications_request')
+      .insert([MedRequest])
+      .select();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error inserting medication request:', error);
+    return null;
+  }
+}
+
 // LocationSearchButtons component
 const LocationSearchButtons: React.FC<{
   onLocationRequest: () => void;
@@ -76,25 +99,27 @@ const LocationSearchButtons: React.FC<{
 const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<Medication[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [med, setMed] = useState<MedRequest>({brand: '', scientific: '', form: ''})
+  const [request, setRequest] = useState<boolean>(false);
+  const [showThankYou, setShowThankYou] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
+
+  const handleMedChange = useCallback((newMed: MedRequest) => {
+    setMed(newMed);
+  }, []);
+
+  const handleMedRequest = useCallback((requestMed: boolean) => {
+    setRequest(requestMed);
+  }, []);
 
   useEffect(() => {
     const searchMedications = async () => {
-      // console.log('Search triggered with query:', searchQuery);
-      // console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-      // console.log('Making query to Supabase...');
+      setLoading(true);
       
       if (searchQuery.length < 2) {
-        // console.log('Query too short, skipping search');
         setResults([]);
         return;
       }
-    
-      setLoading(true);
-      // console.log('Starting search...');
-      // console.log('Searching for:', searchQuery);
-      // console.log('Testing basic query...');
     
       try {
         const testQuery = await supabase
@@ -106,8 +131,6 @@ const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect 
         }
     
         if (testQuery.data) {
-          // console.log('Search results:', testQuery.data);
-          // console.log('Raw Supabase response:', testQuery.data);
           setResults(testQuery.data as Medication[]);
         }
 
@@ -122,8 +145,53 @@ const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect 
     return () => clearTimeout(debounceTimer);
   }, [searchQuery]);
 
+  useEffect(() => {
+    const populateMedRequest = async (currentMed: MedRequest) => {
+      if (request) {
+        try {
+          const medreq = await insertMedRequest({
+            brand: currentMed.brand,
+            scientific: currentMed.scientific,
+            form: currentMed.form
+          });
+
+          if (medreq) {
+            setSearchQuery('');
+            setRequest(false);
+            setShowThankYou(true);
+          }
+        } catch (err) {
+          console.error('Exception in populateMedRequest:', err);
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+
+    populateMedRequest(med);
+  }, [med, request]);
+
   return (
     <div className="w-full max-w-2xl relative">
+
+      {/* Thank You Popup */}
+      {showThankYou && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-[var(--popup)] border border-[var(--puborder)] rounded-lg p-6 max-w-md w-full shadow-lg relative">
+            <button 
+              onClick={() => setShowThankYou(false)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+            >
+              <X size={24} />
+            </button>
+            <div className="text-center">
+              <h3 className="text-xl font-bold mb-2">Thank You!</h3>
+              <p className="">Thank you for submitting a medication request.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         <input
@@ -137,7 +205,7 @@ const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect 
 
       {results.length > 0 && ( //Dropdown list
         <div className="absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-        {results.map((medication) => (
+          {results.map((medication) => (
             <button
               key={medication.id}
               className="w-full px-4 py-2 text-left rounded-lg hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
@@ -162,6 +230,13 @@ const MedicationSearch: React.FC<MedicationSearchProps> = ({ onMedicationSelect 
               </button>
           ))}
         </div>
+      )}
+
+      {(results.length == 0 && searchQuery.length >= 2 && !loading) && (
+        <MedRequestBox 
+          onFilterChange={handleMedChange}
+          addMed={handleMedRequest}
+        />
       )}
 
     </div>
@@ -319,7 +394,6 @@ const SearchPageClient: React.FC = () => {
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // console.error('Error getting location:', error);
       setError({
         message: 'Error finding location from zip code. Please try again.',
         type: 'zipcode'
@@ -357,7 +431,6 @@ const SearchPageClient: React.FC = () => {
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (error) => {
-          // console.error('Error getting location:', error);
           setError({
             message: 'Please enable location or enter your zip code.',
             type: 'geolocation'
@@ -376,11 +449,6 @@ const SearchPageClient: React.FC = () => {
 
   useEffect(() => {
     const fetchPharmacies = async (currentFilters: Filters) => {
-      // console.log('Fetching pharmacies with:', {
-      //   medication: selectedMedication,
-      //   location: userLocation
-      // });
-
       if (!selectedMedication || !userLocation) {
         console.log('Missing required data:', {
           hasMedication: !!selectedMedication,
@@ -391,13 +459,6 @@ const SearchPageClient: React.FC = () => {
 
       setLoading(true);
       try {
-        // console.log('Making RPC call with params:', {
-        //   p_lat: userLocation.lat,
-        //   p_lng: userLocation.lng,
-        //   p_medication_id: selectedMedication.id,
-        //   p_radius: 10000
-        // });
-
         const { data, error } = await supabase.rpc('nearby_pharmacies_with_medication', {
           p_lat: userLocation.lat,
           p_lng: userLocation.lng,
@@ -416,7 +477,6 @@ const SearchPageClient: React.FC = () => {
           return;
         }
 
-        // console.log('Received pharmacy data:', data);
         setPharmacies(data as Pharmacy[]);
       } catch (err) {
         console.error('Exception in fetchPharmacies:', err);

@@ -62,7 +62,7 @@ export default function Home() {
       <div className="text-3xl px-4 text-center mt-48 mb-8">
         How it works
       </div>
-      <div className={`max-w-7xl ${isMobile ? 'flex-col' : 'flex'} items-start`}>
+      <div className={`max-w-7xl ${isMobile ? 'flex-col' : 'flex'} items-start mb-32`}>
         <div className={`${isMobile ? 'w-full border-b border-[var(--puborder)] pb-8 pt-8' : 'w-1/2'} flex flex-col items-center text-center px-4`}>
           <TextSearch size={32} color="var(--accent)" className="mb-2" />
           <span className="text-lg text-center mb-2 text-[var(--accent)]">Faster Searching</span>

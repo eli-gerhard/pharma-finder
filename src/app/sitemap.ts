@@ -19,6 +19,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
+    },
+    {
+      url: 'https://www.instockmed.com/cities',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.4,
+    },
+    {
+      url: 'https://www.instockmed.com/privacy',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.4,
     }
   ]
 }
